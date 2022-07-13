@@ -3,8 +3,8 @@ package com.gmail.gao.gary.datasource;
 import com.gmail.gao.gary.common.exception.DataSourceProcessException;
 import com.gmail.gao.gary.common.exception.DuplicatedKeyException;
 import com.gmail.gao.gary.common.exception.InvalidEntityException;
-import com.gmail.gao.gary.datasource.entry.Role;
-import com.gmail.gao.gary.datasource.entry.User;
+import com.gmail.gao.gary.datasource.entry.RoleData;
+import com.gmail.gao.gary.datasource.entry.UserData;
 
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -17,9 +17,9 @@ public class DataSource {
 
     private static DataSource instance = new DataSource();
 
-    private ConcurrentHashMap<String, User> userMap;
+    private ConcurrentHashMap<String, UserData> userMap;
 
-    private ConcurrentHashMap<String, Role> roleMap;
+    private ConcurrentHashMap<String, RoleData> roleMap;
 
     /**
      * singleton instance
@@ -30,8 +30,8 @@ public class DataSource {
     }
 
     private DataSource () {
-        userMap = new ConcurrentHashMap<String, User>();
-        roleMap = new ConcurrentHashMap<String, Role>();
+        userMap = new ConcurrentHashMap<String, UserData>();
+        roleMap = new ConcurrentHashMap<String, RoleData>();
     }
 
     /**
@@ -39,7 +39,7 @@ public class DataSource {
      * @param name
      * @return
      */
-    public User queryUser(String name) {
+    public UserData queryUser(String name) {
         return userMap.get(name);
     }
 
@@ -48,7 +48,7 @@ public class DataSource {
      * @param name
      * @return
      */
-    public Role querRole(String name) {
+    public RoleData querRole(String name) {
         return roleMap.get(name);
     }
 
@@ -57,10 +57,10 @@ public class DataSource {
      * @param user
      * @return
      */
-    public boolean insertUser(User user) {
+    public boolean insertUser(UserData user) {
         validate(user);
 
-        User existedUser = userMap.putIfAbsent(user.getName(), user);
+        UserData existedUser = userMap.putIfAbsent(user.getName(), user);
 
         if (existedUser == null) {
             return true;
@@ -74,10 +74,10 @@ public class DataSource {
      * @param role
      * @return
      */
-    public boolean insertRole(Role role) {
+    public boolean insertRole(RoleData role) {
         validate(role);
 
-        Role existedRole = roleMap.putIfAbsent(role.getName(), role);
+        RoleData existedRole = roleMap.putIfAbsent(role.getName(), role);
 
         if (existedRole == null) {
             return true;
@@ -91,8 +91,8 @@ public class DataSource {
      * @param user
      * @return
      */
-    public boolean updateUser(User user) {
-        User existedUser = userMap.get(user.getName());
+    public boolean updateUser(UserData user) {
+        UserData existedUser = userMap.get(user.getName());
 
         if (existedUser == null) {
             throw  new DataSourceProcessException("user named " + user.getName() + " dosen't exist");
@@ -118,8 +118,8 @@ public class DataSource {
      * @param role
      * @return
      */
-    public boolean updateRole(Role role) {
-        Role existedRole = roleMap.get(role.getName());
+    public boolean updateRole(RoleData role) {
+        RoleData existedRole = roleMap.get(role.getName());
 
         if (existedRole == null) {
             throw  new DataSourceProcessException("user named " + role.getName() + " dosen't exist");
@@ -135,7 +135,7 @@ public class DataSource {
      * @return
      */
     public boolean deleteUser(String name) {
-        User existedUser = userMap.remove(name);
+        UserData existedUser = userMap.remove(name);
 
         if (existedUser == null) {
             throw  new DataSourceProcessException("user named " + name + " dosen't exist");
@@ -161,7 +161,7 @@ public class DataSource {
      * @return
      */
     public boolean deleteRole(String name) {
-        Role existedRole = roleMap.remove(name);
+        RoleData existedRole = roleMap.remove(name);
 
         if (existedRole == null) {
             throw  new DataSourceProcessException("role named " + name + " dosen't exist");
@@ -175,7 +175,7 @@ public class DataSource {
      * check if User instance is valid
      * @param user
      */
-    private void validate(User user) {
+    private void validate(UserData user) {
         if (user == null) {
             throw new InvalidEntityException("user is null");
         } else if (user.getName() == null || user.getName().trim().equals("")) {
@@ -187,7 +187,7 @@ public class DataSource {
      * check if Role instance is valid
      * @param role
      */
-    private void validate(Role role) {
+    private void validate(RoleData role) {
         if (role == null) {
             throw new InvalidEntityException("role is null");
         } else if (role.getName() == null || role.getName().trim().equals("")) {
@@ -200,7 +200,7 @@ public class DataSource {
      * @param from
      * @param to
      */
-    private void copyFields(User from, User to) {
+    private void copyFields(UserData from, UserData to) {
         to.setName(from.getName());
         to.setPassword(from.getPassword());
         to.setRoles(from.getRoles());
@@ -211,7 +211,7 @@ public class DataSource {
      * @param from
      * @param to
      */
-    private void copyFields(Role from, Role to) {
+    private void copyFields(RoleData from, RoleData to) {
         to.setName(from.getName());
         to.setUsers(from.getUsers());
     }
