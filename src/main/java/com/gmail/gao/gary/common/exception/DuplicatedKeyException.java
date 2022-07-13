@@ -1,5 +1,7 @@
 package com.gmail.gao.gary.common.exception;
 
+import com.gmail.gao.gary.common.error.ErrorCode;
+
 /**
  * Description:
  * Author: huanbasara
@@ -11,5 +13,9 @@ public class DuplicatedKeyException extends DataSourceProcessException {
 
     public DuplicatedKeyException(String message) {
         super(message);
+    }
+
+    public DuplicatedKeyException(String message, ErrorCode errorCode) {
+        super(message, errorCode);
     }
 }

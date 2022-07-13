@@ -8,15 +8,21 @@ import java.util.Set;
  * Author: huanbasara
  * Date: 2022/7/13 12:38 AM
  */
-public class Role {
+public class RoleData {
+    /**
+     * role name
+     */
     private String name;
 
+    /**
+     * associated users
+     */
     private Set<String> users;
 
-    public Role() {
+    public RoleData() {
     }
 
-    public Role(String name) {
+    public RoleData(String name) {
         this.name = name;
         this.users = new HashSet<String>();
     }
@@ -28,8 +34,8 @@ public class Role {
 
     @Override
     public boolean equals(Object obj) {
-        if (obj instanceof Role) {
-            Role objRole = (Role) obj;
+        if (obj instanceof RoleData) {
+            RoleData objRole = (RoleData) obj;
             if (this.name == null) {
                 return objRole.name == null;
             } else {

@@ -8,23 +8,26 @@ import java.util.Set;
  * Author: huanbasara
  * Date: 2022/7/13 12:29 AM
  */
-public class User {
+public class UserData {
     /**
-     * 用户名
+     * user name
      */
     private String name;
 
     /**
-     * 密码（已加密）
+     * password（encrypted）
      */
     private String password;
 
+    /**
+     * associated roles
+     */
     private Set<String> roles;
 
-    public User() {
+    public UserData() {
     }
 
-    public User(String name, String password) {
+    public UserData(String name, String password) {
         this.name = name;
         this.password = password;
         this.roles = new HashSet<String>();
@@ -37,8 +40,8 @@ public class User {
 
     @Override
     public boolean equals(Object obj) {
-        if (obj instanceof User) {
-            User objUser = (User) obj;
+        if (obj instanceof UserData) {
+            UserData objUser = (UserData) obj;
             if (this.name == null) {
                 return objUser.name == null;
             } else {
