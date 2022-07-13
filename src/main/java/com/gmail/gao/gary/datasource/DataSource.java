@@ -3,8 +3,8 @@ package com.gmail.gao.gary.datasource;
 import com.gmail.gao.gary.common.exception.DataSourceProcessException;
 import com.gmail.gao.gary.common.exception.DuplicatedKeyException;
 import com.gmail.gao.gary.common.exception.InvalidEntityException;
-import com.gmail.gao.gary.datasource.entry.RoleData;
-import com.gmail.gao.gary.datasource.entry.UserData;
+import com.gmail.gao.gary.entity.Role;
+import com.gmail.gao.gary.entity.User;
 
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -17,9 +17,9 @@ public class DataSource {
 
     private static DataSource instance = new DataSource();
 
-    private ConcurrentHashMap<String, UserData> userMap;
+    private ConcurrentHashMap<String, User> userMap;
 
-    private ConcurrentHashMap<String, RoleData> roleMap;
+    private ConcurrentHashMap<String, Role> roleMap;
 
     /**
      * singleton instance
@@ -30,8 +30,8 @@ public class DataSource {
     }
 
     private DataSource () {
-        userMap = new ConcurrentHashMap<String, UserData>();
-        roleMap = new ConcurrentHashMap<String, RoleData>();
+        userMap = new ConcurrentHashMap<String, User>();
+        roleMap = new ConcurrentHashMap<String, Role>();
     }
 
     /**
@@ -39,7 +39,7 @@ public class DataSource {
      * @param name
      * @return
      */
-    public UserData queryUser(String name) {
+    public User queryUser(String name) {
         return userMap.get(name);
     }
 
@@ -48,7 +48,7 @@ public class DataSource {
      * @param name
      * @return
      */
-    public RoleData querRole(String name) {
+    public Role querRole(String name) {
         return roleMap.get(name);
     }
 
@@ -57,10 +57,10 @@ public class DataSource {
      * @param user
      * @return
      */
-    public boolean insertUser(UserData user) {
+    public boolean insertUser(User user) {
         validate(user);
 
-        UserData existedUser = userMap.putIfAbsent(user.getName(), user);
+        User existedUser = userMap.putIfAbsent(user.getName(), user);
 
         if (existedUser == null) {
             return true;
@@ -74,10 +74,10 @@ public class DataSource {
      * @param role
      * @return
      */
-    public boolean insertRole(RoleData role) {
+    public boolean insertRole(Role role) {
         validate(role);
 
-        RoleData existedRole = roleMap.putIfAbsent(role.getName(), role);
+        Role existedRole = roleMap.putIfAbsent(role.getName(), role);
 
         if (existedRole == null) {
             return true;
@@ -87,95 +87,92 @@ public class DataSource {
     }
 
     /**
-     * update user
-     * @param user
-     * @return
-     */
-    public boolean updateUser(UserData user) {
-        UserData existedUser = userMap.get(user.getName());
-
-        if (existedUser == null) {
-            throw  new DataSourceProcessException("user named " + user.getName() + " dosen't exist");
-        } else {
-            copyFields(user, existedUser);
-            return true;
-        }
-
-//        // delete user may happens at the same time, so lock the user instance and double check
-//        synchronized (existedUser) {
-//            // double check
-//            if (userMap.get(user.getName()) == null) {
-//                throw  new DataSourceProcessException("user named " + user.getName() + " dosen't exist");
-//            } else {
-//                userMap.put(user.getName(), user);
-//                return true;
-//            }
-//        }
-    }
-
-    /**
-     * update role
-     * @param role
-     * @return
-     */
-    public boolean updateRole(RoleData role) {
-        RoleData existedRole = roleMap.get(role.getName());
-
-        if (existedRole == null) {
-            throw  new DataSourceProcessException("user named " + role.getName() + " dosen't exist");
-        } else {
-            copyFields(role, existedRole);
-            return true;
-        }
-    }
-
-    /**
      * delete user by name
-     * @param name
-     * @return
+     * @param userName
+     * @return affected rows
      */
-    public boolean deleteUser(String name) {
-        UserData existedUser = userMap.remove(name);
+    public int deleteUser(String userName) {
+        User existedUser = userMap.remove(userName);
 
         if (existedUser == null) {
-            throw  new DataSourceProcessException("user named " + name + " dosen't exist");
+            return 0;
         } else {
-            return true;
-        }
+            ConcurrentHashMap<String, Role> roles = existedUser.getRoles();
+            for (Role role : roles.values()) {
+                role.removeUser(userName);
+            }
 
-//        // update user may happens at the same tiem, so lock the user instance and double check
-//        synchronized (existedUser) {
-//            // double check
-//            if (userMap.get(name) == null) {
-//                throw  new DataSourceProcessException("user named " + name + " dosen't exist");
-//            } else {
-//                userMap.remove(name);
-//                return true;
-//            }
-//        }
+            return 1;
+        }
     }
 
     /**
      * delete role by name
-     * @param name
+     * @param roleName
      * @return
      */
-    public boolean deleteRole(String name) {
-        RoleData existedRole = roleMap.remove(name);
+    public int deleteRole(String roleName) {
+        Role existedRole = roleMap.remove(roleName);
 
         if (existedRole == null) {
-            throw  new DataSourceProcessException("role named " + name + " dosen't exist");
+            return 0;
         } else {
-            return true;
+            ConcurrentHashMap<String, User> users = existedRole.getUsers();
+            for (User user : users.values()) {
+                user.removeRole(roleName);
+            }
+
+            return 1;
         }
     }
 
+    /**
+     * bind the association betweeen user and role
+     * @param userName
+     * @param roleName
+     * @return
+     */
+    public int bindUserRole(String userName, String roleName) {
+        User user = userMap.get(userName);
+        Role role = roleMap.get(roleName);
+
+        if (user == null) {
+            throw new DataSourceProcessException("user " + userName + " dosen't exist");
+        } else if (role == null) {
+            throw new DataSourceProcessException("role " + roleName + " dosen't exist");
+        } else {
+            user.addRole(role);
+            role.addUser(user);
+
+            return 1;
+        }
+    }
+
+    /**
+     * unbind the association betweeen user and role
+     * @param userName
+     * @param roleName
+     * @return
+     */
+    public int unbindUserRole(String userName, String roleName) {
+        User user = userMap.get(userName);
+        if (user != null) {
+            user.removeRole(roleName);
+        }
+
+        Role role = roleMap.get(roleName);
+        if (role != null) {
+            role.removeUser(userName);
+        }
+
+        return 1;
+    }
 
     /**
      * check if User instance is valid
      * @param user
      */
-    private void validate(UserData user) {
+    private void validate(User user) {
         if (user == null) {
             throw new InvalidEntityException("user is null");
         } else if (user.getName() == null || user.getName().trim().equals("")) {
@@ -187,33 +184,11 @@ public class DataSource {
      * check if Role instance is valid
      * @param role
      */
-    private void validate(RoleData role) {
+    private void validate(Role role) {
         if (role == null) {
             throw new InvalidEntityException("role is null");
         } else if (role.getName() == null || role.getName().trim().equals("")) {
             throw new InvalidEntityException("role name is null");
         }
     }
-
-    /**
-     * copy fileds
-     * @param from
-     * @param to
-     */
-    private void copyFields(UserData from, UserData to) {
-        to.setName(from.getName());
-        to.setPassword(from.getPassword());
-        to.setRoles(from.getRoles());
-    }
-
-    /**
-     * copy fileds
-     * @param from
-     * @param to
-     */
-    private void copyFields(RoleData from, RoleData to) {
-        to.setName(from.getName());
-        to.setUsers(from.getUsers());
-    }
-
 }

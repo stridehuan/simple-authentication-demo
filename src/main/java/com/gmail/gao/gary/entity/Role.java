@@ -1,14 +1,13 @@
-package com.gmail.gao.gary.datasource.entry;
+package com.gmail.gao.gary.entity;
 
-import java.util.HashSet;
-import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * Description: role entity
  * Author: huanbasara
  * Date: 2022/7/13 12:38 AM
  */
-public class RoleData {
+public class Role {
     /**
      * role name
      */
@@ -17,14 +16,19 @@ public class RoleData {
     /**
      * associated users
      */
-    private Set<String> users;
+    private ConcurrentHashMap<String, User> users;
 
-    public RoleData() {
+    public Role(String name) {
+        this.name = name;
+        this.users = new ConcurrentHashMap<String, User>();
     }
 
-    public RoleData(String name) {
-        this.name = name;
-        this.users = new HashSet<String>();
+    public void addUser(User user) {
+        users.put(user.getName(), user);
+    }
+
+    public User removeUser(String userName) {
+        return users.remove(userName);
     }
 
     @Override
@@ -34,8 +38,8 @@ public class RoleData {
 
     @Override
     public boolean equals(Object obj) {
-        if (obj instanceof RoleData) {
-            RoleData objRole = (RoleData) obj;
+        if (obj instanceof Role) {
+            Role objRole = (Role) obj;
             if (this.name == null) {
                 return objRole.name == null;
             } else {
@@ -54,11 +58,11 @@ public class RoleData {
         this.name = name;
     }
 
-    public Set<String> getUsers() {
+    public ConcurrentHashMap<String, User> getUsers() {
         return users;
     }
 
-    public void setUsers(Set<String> users) {
+    public void setUsers(ConcurrentHashMap<String, User> users) {
         this.users = users;
     }
 }
