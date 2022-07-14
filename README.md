@@ -171,7 +171,7 @@
     - testCreateAndDeleteRole：测试创建/删除角色
     - testAddRoleToUser：测试角色关联
     - testAuthenticate：测试鉴权
-    - testInvalidate：测试token获取和token有效性
+    - testInvalidate：测试token获取和token有效性（为测试方便，当前项目中配置的超时时长是1秒）
     - testCheckRole：测试角色校验
     - testAllRoles：测试角色查询
     - testMultiClient：测试多客户端并发访问，验证多业务线程处理生效（这个用例默认返回成功，没有做校验逻辑，只是通过日志观察判断执行逻辑确实分发给了各个业务线程执行，并且在执行完成后唤醒了测试线程，并返回结果）
