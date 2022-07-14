@@ -166,6 +166,159 @@
     - testAllRoles：测试角色查询
     - testMultiClient：测试多客户端并发访问，验证多业务线程处理生效
 
+# 4 附录
+
+### 4.1 业务场景测试日志记录
+
+```
+
+========   Test Case 1 : testCreateAndDeleteUser  =======
+[BusinessExecutorContext] threadName=BusinessExecutor-1-thread-1, threadGroup=BusinessExecutorGroup, start executing method=UserFacade.createUser
+[BusinessExecutorContext] threadName=BusinessExecutor-1-thread-1, threadGroup=BusinessExecutorGroup, end executing method=UserFacade.createUser
+create userName = user1, userPwd = pwd1
+user in dataSource userName = user1, encrypted userPwd = AEW
+[BusinessExecutorContext] threadName=BusinessExecutor-1-thread-2, threadGroup=BusinessExecutorGroup, start executing method=UserFacade.deleteUser
+[BusinessExecutorContext] threadName=BusinessExecutor-1-thread-2, threadGroup=BusinessExecutorGroup, end executing method=UserFacade.deleteUser
+delete user result = success = true, data = null
+user in dataSource = null
+[BusinessExecutorContext] threadName=BusinessExecutor-1-thread-3, threadGroup=BusinessExecutorGroup, start executing method=UserFacade.deleteUser
+[BusinessExecutorContext] threadName=BusinessExecutor-1-thread-3, threadGroup=BusinessExecutorGroup, end executing method=UserFacade.deleteUser
+delete user result = success = false, errorMsg = user named user1 dosen't exist
+========   Test Result = true
+
+========   Test Case 2 : testCreateAndDeleteRole  =======
+[BusinessExecutorContext] threadName=BusinessExecutor-1-thread-4, threadGroup=BusinessExecutorGroup, start executing method=RoleFacade.createRole
+[BusinessExecutorContext] threadName=BusinessExecutor-1-thread-4, threadGroup=BusinessExecutorGroup, end executing method=RoleFacade.createRole
+create roleName = role1
+role in dataSource userName = role1
+[BusinessExecutorContext] threadName=BusinessExecutor-1-thread-5, threadGroup=BusinessExecutorGroup, start executing method=RoleFacade.deleteRole
+[BusinessExecutorContext] threadName=BusinessExecutor-1-thread-5, threadGroup=BusinessExecutorGroup, end executing method=RoleFacade.deleteRole
+delete role result = success = true, data = null
+role in dataSource = null
+[BusinessExecutorContext] threadName=BusinessExecutor-1-thread-1, threadGroup=BusinessExecutorGroup, start executing method=RoleFacade.deleteRole
+[BusinessExecutorContext] threadName=BusinessExecutor-1-thread-1, threadGroup=BusinessExecutorGroup, end executing method=RoleFacade.deleteRole
+delete role result = success = false, errorMsg = role named role1 dosen't exist
+========   Test Result = true
+
+========   Test Case 3 : testAddRoleToUser  =======
+[BusinessExecutorContext] threadName=BusinessExecutor-1-thread-2, threadGroup=BusinessExecutorGroup, start executing method=UserFacade.createUser
+[BusinessExecutorContext] threadName=BusinessExecutor-1-thread-2, threadGroup=BusinessExecutorGroup, end executing method=UserFacade.createUser
+[BusinessExecutorContext] threadName=BusinessExecutor-1-thread-3, threadGroup=BusinessExecutorGroup, start executing method=UserFacade.createUser
+[BusinessExecutorContext] threadName=BusinessExecutor-1-thread-3, threadGroup=BusinessExecutorGroup, end executing method=UserFacade.createUser
+[BusinessExecutorContext] threadName=BusinessExecutor-1-thread-4, threadGroup=BusinessExecutorGroup, start executing method=RoleFacade.createRole
+[BusinessExecutorContext] threadName=BusinessExecutor-1-thread-4, threadGroup=BusinessExecutorGroup, end executing method=RoleFacade.createRole
+[BusinessExecutorContext] threadName=BusinessExecutor-1-thread-5, threadGroup=BusinessExecutorGroup, start executing method=RoleFacade.createRole
+[BusinessExecutorContext] threadName=BusinessExecutor-1-thread-5, threadGroup=BusinessExecutorGroup, end executing method=RoleFacade.createRole
+[BusinessExecutorContext] threadName=BusinessExecutor-1-thread-1, threadGroup=BusinessExecutorGroup, start executing method=UserFacade.addRole
+[BusinessExecutorContext] threadName=BusinessExecutor-1-thread-1, threadGroup=BusinessExecutorGroup, end executing method=UserFacade.addRole
+[BusinessExecutorContext] threadName=BusinessExecutor-1-thread-2, threadGroup=BusinessExecutorGroup, start executing method=UserFacade.addRole
+[BusinessExecutorContext] threadName=BusinessExecutor-1-thread-2, threadGroup=BusinessExecutorGroup, end executing method=UserFacade.addRole
+[BusinessExecutorContext] threadName=BusinessExecutor-1-thread-3, threadGroup=BusinessExecutorGroup, start executing method=UserFacade.addRole
+[BusinessExecutorContext] threadName=BusinessExecutor-1-thread-3, threadGroup=BusinessExecutorGroup, end executing method=UserFacade.addRole
+[BusinessExecutorContext] threadName=BusinessExecutor-1-thread-4, threadGroup=BusinessExecutorGroup, start executing method=UserFacade.addRole
+[BusinessExecutorContext] threadName=BusinessExecutor-1-thread-4, threadGroup=BusinessExecutorGroup, end executing method=UserFacade.addRole
+------ data info: 
+name=user1, password=AEW, roles=[role1 role2 ]
+name=user1, password=AEW, roles=[role1 role2 ]
+name=role1, roles=[user1 user2 ]
+name=role2, roles=[user1 ]
+========   Test Result = true
+
+========   Test Case 4 : testAuthenticate  =======
+[BusinessExecutorContext] threadName=BusinessExecutor-1-thread-5, threadGroup=BusinessExecutorGroup, start executing method=AccessControlFacade.authenticate
+[BusinessExecutorContext] threadName=BusinessExecutor-1-thread-5, threadGroup=BusinessExecutorGroup, end executing method=AccessControlFacade.authenticate
+authRes1 = success = true, data = T>SUQRVUUVPY[ZV
+[BusinessExecutorContext] threadName=BusinessExecutor-1-thread-1, threadGroup=BusinessExecutorGroup, start executing method=AccessControlFacade.authenticate
+authRes2 = success = false, errorMsg = wrong password
+------ data info: 
+name=user1, password=AEW, roles=[role1 role2 ]
+name=user1, password=AEW, roles=[role1 role2 ]
+name=role1, roles=[user1 user2 ]
+name=role2, roles=[user1 ]
+========   Test Result = true
+
+========   Test Case 5 : testInvalidate  =======
+[BusinessExecutorContext] threadName=BusinessExecutor-1-thread-2, threadGroup=BusinessExecutorGroup, start executing method=AccessControlFacade.authenticate
+[BusinessExecutorContext] threadName=BusinessExecutor-1-thread-2, threadGroup=BusinessExecutorGroup, end executing method=AccessControlFacade.authenticate
+authRes1 = success = true, data = T>SUQRVUUVPY[ZW
+[BusinessExecutorContext] threadName=BusinessExecutor-1-thread-3, threadGroup=BusinessExecutorGroup, start executing method=AccessControlFacade.checkRole
+[BusinessExecutorContext] threadName=BusinessExecutor-1-thread-3, threadGroup=BusinessExecutorGroup, end executing method=AccessControlFacade.checkRole
+checkRoleRes1 = success = true, data = true
+sleep for 2 seconds
+[BusinessExecutorContext] threadName=BusinessExecutor-1-thread-4, threadGroup=BusinessExecutorGroup, start executing method=AccessControlFacade.checkRole
+checkRoleRes2 = success = false, errorMsg = token is timeout
+========   Test Result = true
+
+========   Test Case 6 : testCheckRole  =======
+[BusinessExecutorContext] threadName=BusinessExecutor-1-thread-5, threadGroup=BusinessExecutorGroup, start executing method=AccessControlFacade.authenticate
+[BusinessExecutorContext] threadName=BusinessExecutor-1-thread-5, threadGroup=BusinessExecutorGroup, end executing method=AccessControlFacade.authenticate
+authRes1 = success = true, data = W>SUQRVUUVSPRSU
+[BusinessExecutorContext] threadName=BusinessExecutor-1-thread-1, threadGroup=BusinessExecutorGroup, start executing method=AccessControlFacade.checkRole
+[BusinessExecutorContext] threadName=BusinessExecutor-1-thread-1, threadGroup=BusinessExecutorGroup, end executing method=AccessControlFacade.checkRole
+checkRoleRes1 = success = true, data = false
+[BusinessExecutorContext] threadName=BusinessExecutor-1-thread-2, threadGroup=BusinessExecutorGroup, start executing method=AccessControlFacade.checkRole
+[BusinessExecutorContext] threadName=BusinessExecutor-1-thread-2, threadGroup=BusinessExecutorGroup, end executing method=AccessControlFacade.checkRole
+checkRoleRes2 = success = true, data = true
+sleep for 2 seconds
+[BusinessExecutorContext] threadName=BusinessExecutor-1-thread-3, threadGroup=BusinessExecutorGroup, start executing method=AccessControlFacade.checkRole
+checkRoleRes3 = success = false, errorMsg = token is timeout
+========   Test Result = true
+
+========   Test Case 7 : testAllRoles  =======
+[BusinessExecutorContext] threadName=BusinessExecutor-1-thread-4, threadGroup=BusinessExecutorGroup, start executing method=AccessControlFacade.authenticate
+[BusinessExecutorContext] threadName=BusinessExecutor-1-thread-4, threadGroup=BusinessExecutorGroup, end executing method=AccessControlFacade.authenticate
+authRes1 = success = true, data = T>SUQRVUUVSRRSS
+[BusinessExecutorContext] threadName=BusinessExecutor-1-thread-5, threadGroup=BusinessExecutorGroup, start executing method=AccessControlFacade.authenticate
+[BusinessExecutorContext] threadName=BusinessExecutor-1-thread-5, threadGroup=BusinessExecutorGroup, end executing method=AccessControlFacade.authenticate
+authRes2 = success = true, data = W>SUQRVUUVSRRSS
+[BusinessExecutorContext] threadName=BusinessExecutor-1-thread-1, threadGroup=BusinessExecutorGroup, start executing method=AccessControlFacade.queryAllRoles
+[BusinessExecutorContext] threadName=BusinessExecutor-1-thread-1, threadGroup=BusinessExecutorGroup, end executing method=AccessControlFacade.queryAllRoles
+queryAllRolesRes1 = success = true, data = [role1, role2]
+[BusinessExecutorContext] threadName=BusinessExecutor-1-thread-2, threadGroup=BusinessExecutorGroup, start executing method=AccessControlFacade.queryAllRoles
+[BusinessExecutorContext] threadName=BusinessExecutor-1-thread-2, threadGroup=BusinessExecutorGroup, end executing method=AccessControlFacade.queryAllRoles
+queryAllRolesRes2 = success = true, data = [role1]
+sleep for 2 seconds
+[BusinessExecutorContext] threadName=BusinessExecutor-1-thread-3, threadGroup=BusinessExecutorGroup, start executing method=AccessControlFacade.queryAllRoles
+queryAllRolesRes3 = success = false, errorMsg = token is timeout
+========   Test Result = true
+
+========   Test Case 8 : testMultiClient  =======
+[BusinessExecutorContext] threadName=BusinessExecutor-1-thread-5, threadGroup=BusinessExecutorGroup, start executing method=UserFacade.createUser
+[BusinessExecutorContext] threadName=BusinessExecutor-1-thread-1, threadGroup=BusinessExecutorGroup, start executing method=UserFacade.createUser
+[BusinessExecutorContext] threadName=BusinessExecutor-1-thread-4, threadGroup=BusinessExecutorGroup, start executing method=UserFacade.createUser
+[BusinessExecutorContext] threadName=BusinessExecutor-1-thread-1, threadGroup=BusinessExecutorGroup, end executing method=UserFacade.createUser
+[BusinessExecutorContext] threadName=BusinessExecutor-1-thread-4, threadGroup=BusinessExecutorGroup, end executing method=UserFacade.createUser
+[BusinessExecutorContext] threadName=BusinessExecutor-1-thread-2, threadGroup=BusinessExecutorGroup, start executing method=UserFacade.createUser
+[BusinessExecutorContext] threadName=BusinessExecutor-1-thread-3, threadGroup=BusinessExecutorGroup, start executing method=UserFacade.createUser
+Thread-0: executeResult=success = true, data = null
+[BusinessExecutorContext] threadName=BusinessExecutor-1-thread-5, threadGroup=BusinessExecutorGroup, end executing method=UserFacade.createUser
+[BusinessExecutorContext] threadName=BusinessExecutor-1-thread-1, threadGroup=BusinessExecutorGroup, start executing method=UserFacade.createUser
+[BusinessExecutorContext] threadName=BusinessExecutor-1-thread-3, threadGroup=BusinessExecutorGroup, end executing method=UserFacade.createUser
+[BusinessExecutorContext] threadName=BusinessExecutor-1-thread-1, threadGroup=BusinessExecutorGroup, end executing method=UserFacade.createUser
+[BusinessExecutorContext] threadName=BusinessExecutor-1-thread-2, threadGroup=BusinessExecutorGroup, end executing method=UserFacade.createUser
+Thread-2: executeResult=success = true, data = null
+Thread-1: executeResult=success = true, data = null
+[BusinessExecutorContext] threadName=BusinessExecutor-1-thread-5, threadGroup=BusinessExecutorGroup, start executing method=UserFacade.createUser
+Thread-3: executeResult=success = true, data = null
+[BusinessExecutorContext] threadName=BusinessExecutor-1-thread-5, threadGroup=BusinessExecutorGroup, end executing method=UserFacade.createUser
+[BusinessExecutorContext] threadName=BusinessExecutor-1-thread-4, threadGroup=BusinessExecutorGroup, start executing method=UserFacade.createUser
+Thread-4: executeResult=success = true, data = null
+[BusinessExecutorContext] threadName=BusinessExecutor-1-thread-3, threadGroup=BusinessExecutorGroup, start executing method=UserFacade.createUser
+Thread-6: executeResult=success = true, data = null
+[BusinessExecutorContext] threadName=BusinessExecutor-1-thread-2, threadGroup=BusinessExecutorGroup, start executing method=UserFacade.createUser
+[BusinessExecutorContext] threadName=BusinessExecutor-1-thread-3, threadGroup=BusinessExecutorGroup, end executing method=UserFacade.createUser
+[BusinessExecutorContext] threadName=BusinessExecutor-1-thread-4, threadGroup=BusinessExecutorGroup, end executing method=UserFacade.createUser
+Thread-5: executeResult=success = true, data = null
+Thread-7: executeResult=success = true, data = null
+Thread-8: executeResult=success = true, data = null
+[BusinessExecutorContext] threadName=BusinessExecutor-1-thread-2, threadGroup=BusinessExecutorGroup, end executing method=UserFacade.createUser
+Thread-9: executeResult=success = true, data = null
+========   Test Result = true
+
+ Total Result: success = 8, fail = 0
+
+```
+
 
 
 
