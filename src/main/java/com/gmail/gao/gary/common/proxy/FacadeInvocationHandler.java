@@ -1,9 +1,11 @@
 package com.gmail.gao.gary.common.proxy;
 
+import com.gmail.gao.gary.common.exception.CommonRuntimeException;
 import com.gmail.gao.gary.common.processor.BusinessExecutor;
 import com.gmail.gao.gary.entity.Result;
 
 import java.lang.reflect.InvocationHandler;
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
 import java.util.concurrent.Callable;
@@ -40,6 +42,8 @@ public class FacadeInvocationHandler implements InvocationHandler {
             public Result call() throws Exception {
                 try {
                     return (Result)method.invoke(target, args);
+                } catch (InvocationTargetException e) {
+                    return Result.failed(e.getTargetException().getMessage());
                 } catch (Throwable t) {
                     return Result.failed(t.getMessage());
                 }

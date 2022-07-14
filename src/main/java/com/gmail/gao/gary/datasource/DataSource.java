@@ -48,7 +48,7 @@ public class DataSource {
      * @param name
      * @return
      */
-    public Role querRole(String name) {
+    public Role queryRole(String name) {
         return roleMap.get(name);
     }
 

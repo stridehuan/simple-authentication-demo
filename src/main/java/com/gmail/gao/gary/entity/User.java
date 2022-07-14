@@ -42,6 +42,17 @@ public class User {
     }
 
     @Override
+    public String toString() {
+        String rolesStr = "[";
+        for (String role : roles.keySet()) {
+            rolesStr = rolesStr + role + " ";
+        }
+        rolesStr = rolesStr + "]";
+
+        return "name=" + name + ", password=" + password + ", roles=" + rolesStr;
+    }
+
+    @Override
     public int hashCode() {
         return name == null ? 0 : name.hashCode();
     }

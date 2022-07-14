@@ -32,6 +32,17 @@ public class Role {
     }
 
     @Override
+    public String toString() {
+        String usersStr = "[";
+        for (String user : users.keySet()) {
+            usersStr = usersStr + user + " ";
+        }
+        usersStr = usersStr + "]";
+
+        return "name=" + name + ", roles=" + usersStr;
+    }
+
+    @Override
     public int hashCode() {
         return name == null ? 0 : name.hashCode();
     }

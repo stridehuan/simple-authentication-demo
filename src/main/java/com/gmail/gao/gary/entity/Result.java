@@ -40,6 +40,15 @@ public class Result <T> {
         return new Result(false, null, errorCode, errorMsg);
     }
 
+    @Override
+    public String toString() {
+        if (success) {
+            return "success = true, data = " + (data == null ? "null" : data.toString());
+        } else {
+            return "success = false, errorMsg = " + errorMsg;
+        }
+    }
+
     public boolean isSuccess() {
         return success;
     }
