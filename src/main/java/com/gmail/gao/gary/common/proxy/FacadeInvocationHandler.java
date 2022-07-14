@@ -41,7 +41,10 @@ public class FacadeInvocationHandler implements InvocationHandler {
         Future<Result> future = businessExecutor.submit(new Callable<Result>() {
             public Result call() throws Exception {
                 try {
-                    return (Result)method.invoke(target, args);
+                    printContext(method, "start");
+                    Result result = (Result)method.invoke(target, args);
+                    printContext(method, "end");
+                    return result;
                 } catch (InvocationTargetException e) {
                     return Result.failed(e.getTargetException().getMessage());
                 } catch (Throwable t) {
@@ -51,6 +54,15 @@ public class FacadeInvocationHandler implements InvocationHandler {
         });
 
         return future.get();
+    }
+
+    private void printContext(Method method, String action) {
+        String info = "[BusinessExecutorContext] threadName=";
+        Thread curThread = Thread.currentThread();
+        info += curThread.getName();
+        info += ", threadGroup=" + curThread.getThreadGroup().getName();
+        info += ", " + action + " executing method=" + method.getDeclaringClass().getSimpleName() + "." + method.getName();
+        System.out.println(info);
     }
 
     /**

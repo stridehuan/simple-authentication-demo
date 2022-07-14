@@ -8,7 +8,9 @@ import com.gmail.gao.gary.facade.AccessControlFacade;
 import com.gmail.gao.gary.facade.RoleFacade;
 import com.gmail.gao.gary.facade.UserFacade;
 
+import java.util.Random;
 import java.util.Set;
+import java.util.concurrent.CountDownLatch;
 
 /**
  * Description:
@@ -60,6 +62,9 @@ public class ApplicationTest {
         if (result) successCount++; else failedCount++;
 
         result = TestUtil.execTest(ApplicationTest::testAllRoles, "testAllRoles", index ++);
+        if (result) successCount++; else failedCount++;
+
+        result = TestUtil.execTest(ApplicationTest::testMultiClient, "testMultiClient", index ++);
         if (result) successCount++; else failedCount++;
 
         System.out.println("\n Total Result: success = " + successCount + ", fail = " + failedCount);
@@ -257,6 +262,34 @@ public class ApplicationTest {
         System.out.println("queryAllRolesRes3 = " + queryAllRolesRes3.toString());
 
         return result;
+    }
+
+    public static boolean testMultiClient() {
+        String userNamePrefix = "multiUser";
+        String passwordPrefix = "multiPwd";
+        int count = 10;
+
+        CountDownLatch countDownLatch = new CountDownLatch(count);
+        for (int i = 1; i <= count; i++) {
+            String userName = userNamePrefix + i;
+            String password = passwordPrefix + i;
+            new Thread(() -> {
+                try {
+                    Result result = userFacade.createUser(userName, password);
+                    System.out.println(Thread.currentThread().getName() + ": executeResult=" + result.toString());
+                } finally {
+                    countDownLatch.countDown();
+                }
+            }).start();
+        }
+
+        try {
+            countDownLatch.await();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+
+        return true;
     }
 
 
